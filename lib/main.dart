@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 import 'View/contact_list_screen.dart';
 import 'View/upcoming_events_screen.dart';
 
@@ -30,9 +32,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [];
 
+
+  // Future<void> _deletedaDatabase() async {
+  //   String path = join(await getDatabasesPath(), 'peopledex.db');
+  //   await deleteDatabase(path);
+  // }
+
   @override
   void initState() {
     super.initState();
+    // _deletedaDatabase();
     _screens.addAll([
       ContactListScreen(needsReloadNotifier: _needsReload),
       UpcomingEventsScreen(needsReloadNotifier: _needsReload),

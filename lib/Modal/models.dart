@@ -59,43 +59,39 @@ class Event {
 }
 
 class Note {
-  final int? id;
-  final int contactId;
-  final String text;
-  final String date;
-  final bool isReminder;
-  final String eventType; // Add this line
+  int? id;
+  String text;
+  String date;
+  bool isReminder;
+  String eventType;
 
   Note({
     this.id,
-    required this.contactId,
     required this.text,
     required this.date,
     required this.isReminder,
-    required this.eventType, // Add this line
+    required this.eventType,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'contactId': contactId,
       'text': text,
       'date': date,
-      'isReminder': isReminder ? 1 : 0,
-      'eventType': eventType, // Add this line
+      'isReminder': isReminder ? 1 : 0, // Convert boolean to integer for storage
+      'eventType': eventType,
     };
   }
 
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
       id: map['id'],
-      contactId: map['contactId'],
-      text: map['text'] ?? '',
-      date: map['date'] ?? '',
-      isReminder: map['isReminder'] == 1,
-      eventType: map['eventType'] ?? '', // Add this line
+      text: map['text'],
+      date: map['date'],
+      isReminder: map['isReminder'] == 1, // Convert integer back to boolean
+      eventType: map['eventType'],
     );
   }
-
 }
+
 

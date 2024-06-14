@@ -112,7 +112,9 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddNoteScreen(contact: _contact),
+              builder: (context) => AddNoteScreen(
+                preselectedContacts: [_contact], // Pass the selected contact here
+              ),
             ),
           );
           _refreshNotes();
