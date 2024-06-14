@@ -1,10 +1,12 @@
 class Contact {
-  final int? id;
-  final String name;
-  final String birthday;
-  final String relationship;
-  final String interests;
-  final String notes;
+  int? id;
+  String name;
+  String birthday;
+  String relationship;
+  String interests;
+  String notes;
+  String phoneNumber;
+  String? avatar; // Optional for profile picture
 
   Contact({
     this.id,
@@ -13,6 +15,8 @@ class Contact {
     required this.relationship,
     required this.interests,
     required this.notes,
+    required this.phoneNumber,
+    this.avatar,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,18 +27,21 @@ class Contact {
       'relationship': relationship,
       'interests': interests,
       'notes': notes,
+      'phoneNumber': phoneNumber,
+      'avatar': avatar,
     };
   }
 
-  // Factory constructor to handle null values from the database
   factory Contact.fromMap(Map<String, dynamic> map) {
     return Contact(
       id: map['id'],
-      name: map['name'] ?? '',
-      birthday: map['birthday'] ?? '',
-      relationship: map['relationship'] ?? '',
-      interests: map['interests'] ?? '',
-      notes: map['notes'] ?? '',
+      name: map['name'],
+      birthday: map['birthday'],
+      relationship: map['relationship'],
+      interests: map['interests'],
+      notes: map['notes'],
+      phoneNumber: map['phoneNumber'] ?? '',
+      avatar: map['avatar'],
     );
   }
 }

@@ -1,10 +1,7 @@
-import 'dart:async';
-import 'dart:io';
-import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:peopledex/Modal/models.dart' as models;
-
+import 'package:path/path.dart';
 import '../Modal/models.dart';
+import '../Modal/models.dart' as models;
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -23,7 +20,7 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'peopledex.db');
     return await openDatabase(
       path,
-      version: 3, // Increment the version number
+      version: 5, // Incremented the version
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -31,47 +28,29 @@ class DatabaseHelper {
 
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
-    CREATE TABLE contacts (
-      id INTEGER PRIMARY KEY,
-      name TEXT,
-      birthday TEXT,
-      relationship TEXT,
-      interests TEXT,
-      notes TEXT
-    )
-  ''');
+      CREATE TABLE contacts (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        birthday TEXT,
+        relationship TEXT,
+        interests TEXT,
+        notes TEXT,
+        phoneNumber TEXT,
+        avatar TEXT
+      )
+    ''');
 
     await db.execute('''
-    CREATE TABLE notes (
-      id INTEGER PRIMARY KEY,
-      text TEXT,
-      date TEXT,
-      isReminder INTEGER,
-      eventType TEXT
-    )
-  ''');
+      CREATE TABLE notes (
+        id INTEGER PRIMARY KEY,
+        text TEXT,
+        date TEXT,
+        isReminder INTEGER,
+        eventType TEXT
+      )
+    ''');
 
     await db.execute('''
-    CREATE TABLE note_contacts (
-      noteId INTEGER,
-      contactId INTEGER,
-      FOREIGN KEY (noteId) REFERENCES notes (id) ON DELETE CASCADE,
-      FOREIGN KEY (contactId) REFERENCES contacts (id) ON DELETE CASCADE,
-      PRIMARY KEY (noteId, contactId)
-    )
-  ''');
-  }
-
-// In the _onUpgrade method, add the note_contacts table if upgrading from an older version
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      await db.execute('ALTER TABLE contacts ADD COLUMN relationship TEXT DEFAULT "Friend"');
-    }
-    if (oldVersion < 3) {
-      await db.execute('ALTER TABLE notes ADD COLUMN eventType TEXT DEFAULT "Contact"');
-    }
-    if (oldVersion < 4) {  // Assuming the new version is 4
-      await db.execute('''
       CREATE TABLE note_contacts (
         noteId INTEGER,
         contactId INTEGER,
@@ -80,6 +59,29 @@ class DatabaseHelper {
         PRIMARY KEY (noteId, contactId)
       )
     ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE contacts ADD COLUMN relationship TEXT DEFAULT "Friend"');
+    }
+    if (oldVersion < 3) {
+      await db.execute('ALTER TABLE notes ADD COLUMN eventType TEXT DEFAULT "Contact"');
+    }
+    if (oldVersion < 4) {
+      await db.execute('''
+        CREATE TABLE note_contacts (
+          noteId INTEGER,
+          contactId INTEGER,
+          FOREIGN KEY (noteId) REFERENCES notes (id) ON DELETE CASCADE,
+          FOREIGN KEY (contactId) REFERENCES contacts (id) ON DELETE CASCADE,
+          PRIMARY KEY (noteId, contactId)
+        )
+      ''');
+    }
+    if (oldVersion < 5) {
+      await db.execute('ALTER TABLE contacts ADD COLUMN phoneNumber TEXT');
+      await db.execute('ALTER TABLE contacts ADD COLUMN avatar TEXT');
     }
   }
 
@@ -164,6 +166,7 @@ class DatabaseHelper {
       whereArgs: [contact.id],
     );
   }
+
 
 // Delete a contact
   Future<int> deleteContact(int id) async {
@@ -263,18 +266,14 @@ class DatabaseHelper {
       whereArgs: [contact.id],
     );
     if (result.isEmpty) {
-      await insertContact(contact);
+      await db.insert('contacts', contact.toMap());
     } else {
-      Contact existingContact = Contact.fromMap(result.first);
-      Contact updatedContact = Contact(
-        id: contact.id,
-        name: contact.name.isNotEmpty ? contact.name : existingContact.name,
-        birthday: contact.birthday.isNotEmpty ? contact.birthday : existingContact.birthday,
-        relationship: contact.relationship.isNotEmpty ? contact.relationship : existingContact.relationship,
-        interests: contact.interests.isNotEmpty ? contact.interests : existingContact.interests,
-        notes: contact.notes.isNotEmpty ? contact.notes : existingContact.notes,
+      await db.update(
+        'contacts',
+        contact.toMap(),
+        where: 'id = ?',
+        whereArgs: [contact.id],
       );
-      await updateContact(updatedContact);
     }
   }
 

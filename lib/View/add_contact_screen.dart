@@ -145,7 +145,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
         birthday: _birthdayController.text,
         relationship: _relationship,
         interests: _interestsController.text,
-        notes: _notesController.text,
+        notes: _notesController.text, phoneNumber: widget.contact?.phoneNumber ?? '',
       );
 
       print('Saving contact: $newContact');
